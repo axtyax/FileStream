@@ -29,7 +29,7 @@ def index():
 import upload
 @app.route('/upload/<session_id>/<file_id>',methods=['POST'])
 def process_shard(session_id,file_id):
-    upload.store_shard(session_id,file_id,request.data,models.db)
+    upload.store_shard(session_id,file_id,request.data)
     resp = jsonify(success=True)
     return resp
 
