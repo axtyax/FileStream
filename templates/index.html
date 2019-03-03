@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="description" content="Transfer files between devices for free.">
+    <meta name="keywords" content="file transfer,free,send files,unlimited size">
+    <meta name="author" content="Axtya Darius Barbano">
+    <title>FileStream - Transfer files between devices</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" media="screen" href="main.css" />
+    <script src="main.js"></script>
+
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-125635751-3"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', 'UA-125635751-3');
+    </script>
+
+
+    <meta name="google-site-verification" content="v0tMR10XWYLEZiOfHsVmJBOAv8Z73paGgNQLKbEzVw0" />
+
+    <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.0/build/pure-min.css" integrity="sha384-nn4HPE8lTHyVtfCBi5yW9d20FjT8BJwUXyWZT9InLYax14RDjBj46LmSztkmNP9w" crossorigin="anonymous">
+
+</head>
+
+<style>
+    html {
+        background: rgb(2,0,36);
+        background: linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(74,56,193,1) 0%, rgba(0,185,223,1) 100%);
+
+        color: rgba(255, 255, 255,0.8);
+    }
+
+    #topbar {
+        width: 100%;
+        text-align: center;
+        /*border: black 1px solid;*/
+        height: 55px;
+    }
+
+    #topbar ul {
+        list-style-type: none;
+    }
+
+    #topbar ul li {
+        float: left;
+        padding-left: 15%;       
+    }
+
+    #topbar ul a {
+        color: rgba(255, 255, 255,0.8);
+        text-decoration: none;
+    }
+
+    #topbar ul a:hover {
+        color: rgba(255, 255, 255,1);
+        text-decoration: none;
+    }
+
+    #header {
+        margin-top: 5%;
+        width: 100%;
+        text-align: center;
+    }
+
+    #header h1 {
+        color: rgba(255, 255, 255,0.7);
+    }
+
+    #header h2 {
+        color: rgba(255, 255, 255,0.6);
+    }
+
+    #upload {
+        width: 800px;
+        height: 450px;
+        border: rgba(255, 255, 255,0.7) dashed 2px;
+        margin: auto;
+        margin-top: 65px;
+        overflow: auto;
+        text-align: center;
+    }
+    
+    #upload ul {
+        list-style-type: none;
+    }
+
+    #upload input {
+        color: rgba(255, 255, 255,0.7);
+        margin: auto;
+        background: transparent;
+        border: rgba(255, 255, 255,0.7) solid 2px;
+        padding: 5px;
+        border-radius: 5px;
+    }
+
+    #upload input:hover {
+        color: cyan;
+    }
+
+    #footer {
+        margin: auto;
+        margin-top: 4%;
+        width: 80%;
+        text-align: center;        
+    }
+
+    #footer h2 {
+        color: rgba(255, 255, 255,0.6);
+    }
+
+</style>
+
+<body>
+
+    <div id="topbar">
+        <ul>
+            <li><a href="/">Home</a></li>
+            <li><a href="/about">About</a></li>
+            <li><a href="/products">Products</a></li>
+        </ul>
+    </div>
+
+    <div id="header">
+        <h1>Share files between all devices</h1>
+        <h2>Completely free. No size limits.</h2>
+    </div>
+
+    <div id="upload">
+        <input type="button" value="Add Files" onclick="document.getElementById('myFile').click();" />
+        <input type="file" id="myFile" style="display: none;" multiple size="50" onchange="add_files()">
+        <ul id="file_list">
+
+        </ul>
+        <input type="button" value="Upload" onclick="upload_files()"/>
+    </div>
+
+    <script>
+        
+        var file_list = []
+
+        function update_file_list() {
+            var txt = "";
+            for (var f = 0; f < file_list.length; f++) {
+                txt += "<li><strong>" + (f+1) + ". " + file_list[f][1] + "</strong><br>size: " + file_list[f][2] + " bytes </li>";
+            }
+            console.log(file_list);
+            document.getElementById("file_list").innerHTML = txt;
+        }
+
+        function add_files() {
+            var x = document.getElementById("myFile");
+            var txt = "";
+            if ('files' in x) {
+                if (x.files.length == 0) {
+                    txt = "Select one or more files.";
+                }
+                else {
+                    for (var i = 0; i < x.files.length; i++) {
+                        file_list.push([x.files[i],x.files[i].name,x.files[i].size]);
+                    }
+                }
+            }
+            else {
+                if (x.value == "") {
+                    txt += "Select one or more files.";
+                } 
+                else {
+                    txt += "The files property is not supported by your browser!";
+                    txt  += "<br>The path of the selected file: " + x.value; // If the browser does not support the files property, it will return the path of the selected file instead. 
+                }
+            }
+            document.getElementById("myFile").value = "";
+            console.log()
+            update_file_list();
+        }
+
+        function upload_files() {
+            for (var i = 0; i < file_list.length; i++) {
+                console.log("uploading " + i)
+                console.log(file_list[i])
+                upload_file(i);
+            }
+        }
+
+        function upload_file(i) {
+            var file = file_list[i][0];
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                let buf = e.target.result;
+                upload_file_to_server(i,buf);                
+            }
+            reader.readAsArrayBuffer(file);
+        }
+
+        function upload_file_to_server(i,file_buf) {
+            const Http = new XMLHttpRequest();
+            const url='/upload/123/myfile';
+            Http.open("POST", url);
+            Http.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+            Http.onreadystatechange=(e)=>{
+                console.log(Http.responseText)
+            }
+            
+            //DO SHARDING HERE
+            console.log(file_buf)
+            Http.send(file_buf);
+
+        }
+
+    </script>
+
+    <div id="file_buffer">
+
+    </div>
+
+    <div id="footer">
+        <h2>
+            FileStream lets you transfer files of any size between any two devices. Just select the files you want to send and hit 'stream' to get a link that
+            can be sent to the recipient. Once they hit 'download', files will be directly transferred to their system.
+        </h2>
+    </div>
+
+</body>
+
+
+</html>
