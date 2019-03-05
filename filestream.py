@@ -27,11 +27,14 @@ def index():
     return render_template("index.html")
 
 import upload
-@app.route('/upload/<session_id>/<file_id>',methods=['POST'])
+
+@app.route('/upload/metadata', methods=['POST'])
+def process_metadata():
+    return upload.store_session_metadata(request.json)
+
+@app.route('/upload/<session_id>/<file_id>', methods=['POST'])
 def process_shard(session_id,file_id):
-    upload.store_shard(session_id,file_id,request.data)
-    resp = jsonify(success=True)
-    return resp
+    return upload.store_shard(session_id,file_id,request.data)
 
 if __name__ == '__main__':
     app.run(debug=True)

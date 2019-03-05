@@ -10,8 +10,6 @@
     <meta name="author" content="Axtya Darius Barbano">
     <title>FileStream - Transfer files between devices</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" type="text/css" media="screen" href="main.css" />
-    <script src="main.js"></script>
 
     <!-- Global site tag (gtag.js) - Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-125635751-3"></script>
@@ -182,37 +180,88 @@
             update_file_list();
         }
 
+        function random_id() {
+            var id = "";
+            var id_length = 6;
+            var possible = "abcdefghijklmnopqrstuvwxyz0123456789";
+            for (var i = 0; i < id_length; i++) {
+                id += possible.charAt(Math.floor(Math.random() * possible.length));
+            }
+            return id;
+        }
+
+        var shard_buffer = []
+        var shard_tree = []
+        var session_id = random_id();
+        var shard_size = 1000000;
+
         function upload_files() {
+            shard_buffer = [];
+            shard_tree = []
             for (var i = 0; i < file_list.length; i++) {
-                console.log("uploading " + i)
-                console.log(file_list[i])
-                upload_file(i);
+                if (i != file_list.length-1)
+                    upload_file(i,false);
+                else
+                    upload_file(i,true);
             }
         }
 
-        function upload_file(i) {
+        function upload_file(i,conf) {
             var file = file_list[i][0];
             var reader = new FileReader();
             reader.onload = function(e) {
                 let buf = e.target.result;
-                upload_file_to_server(i,buf);                
+                shard_file(buf,file_list[i][1]);
+                //upload_file_to_server(i,buf);
+                if (conf) {
+                    console.log("FILES SHARDED");
+                    upload_metadata();
+                }
             }
             reader.readAsArrayBuffer(file);
         }
 
-        function upload_file_to_server(i,file_buf) {
+        function shard_file(file_buf,file_name) {
+            var file_id = random_id();
+            for (var s = 0; s*shard_size < file_buf.byteLength; s++) {
+                shard_buffer.push([file_id,s,file_name,file_buf.slice(s*shard_size,(s+1)*shard_size)])
+                shard_tree.push([file_id,s,file_name,file_buf.slice(s*shard_size,(s+1)*shard_size).byteLength])
+            }
+            //console.log(shard_buffer)
+        }
+
+        function upload_metadata() {
+            
             const Http = new XMLHttpRequest();
-            const url='/upload/123/myfile';
+            const url='/upload/metadata'
             Http.open("POST", url);
             Http.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
             Http.onreadystatechange=(e)=>{
                 console.log(Http.responseText)
             }
-            
-            //DO SHARDING HERE
-            console.log(file_buf)
-            Http.send(file_buf);
+            var filename_list = []
+            for (var i = 0; i < file_list.length; i++) {
+                filename_list.push(file_list[i][1]);
+            }
+            Http.send(JSON.stringify({ "session_id":session_id, "shard_tree":JSON.stringify(shard_tree) }));     
+        }
 
+        function upload_top_shard() {
+
+        }
+
+        function upload_file_to_server(i,file_buf) {
+            var file_id = random_id();
+            const Http = new XMLHttpRequest();
+            const url='/upload/'+session_id+'/'+file_id;
+            Http.open("POST", url);
+            Http.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+            Http.onreadystatechange=(e)=>{
+                console.log(Http.responseText)
+            }
+
+            //console.log(file_buf);
+            Http.send(file_buf);
         }
 
     </script>
