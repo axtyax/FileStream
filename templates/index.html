@@ -246,22 +246,8 @@
             Http.send(JSON.stringify({ "session_id":session_id, "shard_tree":JSON.stringify(shard_tree) }));     
         }
 
-        function upload_top_shard() {
-
-        }
-
-        function upload_file_to_server(i,file_buf) {
-            var file_id = random_id();
-            const Http = new XMLHttpRequest();
-            const url='/upload/'+session_id+'/'+file_id;
-            Http.open("POST", url);
-            Http.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-            Http.onreadystatechange=(e)=>{
-                console.log(Http.responseText)
-            }
-
-            //console.log(file_buf);
-            Http.send(file_buf);
+        function ping_server() {
+            
         }
 
     </script>

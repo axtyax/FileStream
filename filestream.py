@@ -2,7 +2,6 @@ from flask import Flask
 from flask import render_template
 from flask import Response
 from flask import request
-from flask import jsonify
 app = Flask(__name__)
 
 from flask_sqlalchemy import SQLAlchemy
