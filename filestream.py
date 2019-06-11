@@ -12,6 +12,7 @@ try:
 except OSError:
     pass
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database/database.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 models.db.app = app
 models.db.init_app(app)
 models.db.create_all()

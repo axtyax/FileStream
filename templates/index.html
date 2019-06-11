@@ -229,7 +229,7 @@
                 shard_buffer.push([file_id,s,file_name,file_buf.slice(s*shard_size,(s+1)*shard_size)])
                 shard_tree.push([file_id,s,file_name,file_buf.slice(s*shard_size,(s+1)*shard_size).byteLength])
             }
-            //console.log(shard_buffer)
+            console.log(shard_buffer);
         }
 
         function upload_metadata() {
@@ -263,6 +263,7 @@
             FileStream lets you transfer files of any size between any two devices. Just select the files you want to send and hit 'stream' to get a link that
             can be sent to the recipient. Once they hit 'download', files will be directly transferred to their system.
         </h2>
+        <h5>Created by <a href="https://www.dariusbarbano.com">A. Darius Barbano</a></h5>
     </div>
 
 </body>
