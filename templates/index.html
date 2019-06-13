@@ -245,7 +245,8 @@
             for (var i = 0; i < file_list.length; i++) {
                 filename_list.push(file_list[i][1]);
             }
-            Http.send(JSON.stringify({ "session_id":session_id, "shard_tree":JSON.stringify(shard_tree) }));     
+            Http.send(JSON.stringify({ "session_id":session_id, "shard_tree":JSON.stringify(shard_tree) }));
+            console.log(shard_tree);  
         }
 
         function ping_server() {
