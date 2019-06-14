@@ -32,8 +32,11 @@
     html {
         background: rgb(2,0,36);
         background: linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(74,56,193,1) 0%, rgba(0,185,223,1) 100%);
-
         color: rgba(255, 255, 255,0.8);
+    }
+
+    body {
+        color: rgba(255, 255, 255,1);
     }
 
     #topbar {
@@ -63,7 +66,7 @@
     }
 
     #header {
-        margin-top: 5%;
+        margin-top: 3%;
         width: 100%;
         text-align: center;
     }
@@ -103,6 +106,13 @@
         color: cyan;
     }
 
+    #upload_link {
+        padding-top: 1.5%;
+        text-align: center;
+        color: rgba(255, 255, 255,0.8);
+        font-weight: bold;
+    }
+
     #footer {
         margin: auto;
         margin-top: 4%;
@@ -140,6 +150,10 @@
 
         </ul>
         <input type="button" value="Upload" onclick="upload_files()"/>
+    </div>
+
+    <div id="upload_link">
+        A download link will appear here once you hit 'Upload'.
     </div>
 
     <script>
@@ -195,7 +209,7 @@
         var shard_buffer = []
         var shard_tree = []
         var session_id = random_id();
-        var shard_size = 1000000;
+        var shard_size = 250000;
 
         function upload_files() {
             shard_buffer = [];
@@ -226,26 +240,27 @@
         function shard_file(file_buf,file_name) {
             var file_id = random_id();
             for (var s = 0; s*shard_size < file_buf.byteLength; s++) {
-                shard_buffer.push([file_id,s,file_name,file_buf.slice(s*shard_size,(s+1)*shard_size)])
-                shard_tree.push([file_id,s,file_name,file_buf.slice(s*shard_size,(s+1)*shard_size).byteLength])
+                var shard_id = random_id();
+                shard_buffer.push([file_id,shard_id,s,file_name,file_buf.slice(s*shard_size,(s+1)*shard_size)])
+                shard_tree.push([file_id,shard_id,s,file_name,file_buf.slice(s*shard_size,(s+1)*shard_size).byteLength])
             }
             console.log(shard_buffer);
         }
 
         function upload_metadata() {
-            
             const Http = new XMLHttpRequest();
             const url='/upload/metadata'
             Http.open("POST", url);
             Http.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
             Http.onreadystatechange=(e)=>{
                 console.log(Http.responseText)
+                document.getElementById("upload_link").innerHTML = "Download Link: <a href='d/"+session_id+"'>"+document.URL+session_id+"</a>";
             }
             var filename_list = []
             for (var i = 0; i < file_list.length; i++) {
                 filename_list.push(file_list[i][1]);
             }
-            Http.send(JSON.stringify({ "session_id":session_id, "shard_tree":JSON.stringify(shard_tree) }));
+            Http.send(JSON.stringify({ "session_id":session_id, "shard_tree":str(shard_tree) }));
             console.log(shard_tree);  
         }
 

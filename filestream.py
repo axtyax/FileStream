@@ -32,9 +32,24 @@ import upload
 def process_metadata():
     return upload.store_session_metadata(request.json)
 
-@app.route('/upload/<session_id>/<file_id>', methods=['POST'])
+@app.route('/upload/<session_id>/<file_id>/<shard_id>', methods=['POST'])
 def process_shard(session_id,file_id):
-    return upload.store_shard(session_id,file_id,request.data)
+    return upload.store_shard(session_id,file_id,shard_id,request.data)
+
+import download
+import html
+import json
+
+@app.route('/d/<session_id>',methods=['GET'])
+def download_page(session_id):
+    metadata = download.retrive_session_metadata(session_id)
+    return render_template("download.html",stream_metadata=json.loads(metadata))
 
 if __name__ == '__main__':
     app.run(debug=True)
+
+#Uploader sends metadata to server
+#downloader gets metadata with the download page
+#downloader requests shards from the server
+#uploader sends requested shards to the server
+#downloader pulls buffered shards from the server

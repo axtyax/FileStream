@@ -6,10 +6,10 @@ class Session(db.Model):
     __tablename__ = 'session'
     id = db.Column(db.Integer, primary_key=True)
     session_id = db.Column(db.String)
-    shard_tree = db.Column(db.String)
+    meta_data = db.Column(db.String)
 
     def __repr__(self):
-        return '<User %r>' % self.username
+        return '<Session ID %r>' % self.session_id
 
 class File(db.Model):
     __tablename__ = 'file'
@@ -18,7 +18,7 @@ class File(db.Model):
     num_shards = db.Column(db.Integer)
 
     def __repr__(self):
-        return '<User %r>' % self.username
+        return '<File ID %r>' % self.id
 
 class Shard(db.Model):
     __tablename__ = 'shard'
@@ -28,4 +28,4 @@ class Shard(db.Model):
     data = db.Column(db.LargeBinary, unique=True, nullable=False)
 
     def __repr__(self):
-        return '<User %r>' % self.username
+        return '<Shard ID %r>' % self.id
