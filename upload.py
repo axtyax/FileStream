@@ -11,6 +11,11 @@ def store_session_metadata(metadata):
     return resp
 
 def store_shard(session_id,file_id,shard_id,shard_data):
+    
+    shard = models.db.session.query(models.Shard).filter_by(id=shard_id).one_or_none()
+    if shard is not None:
+        return jsonify(success=True)
+
     new_shard = models.Shard(id=shard_id,data=shard_data)
     models.db.session.add(new_shard)
     models.db.session.commit()

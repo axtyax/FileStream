@@ -1,4 +1,5 @@
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.dialects.mysql import LONGTEXT
 
 db = SQLAlchemy()
 
@@ -25,7 +26,7 @@ class Shard(db.Model):
     id = db.Column(db.String, primary_key=True)
     #file_id = db.Column(db.Integer, db.ForeignKey('file.id'))
     shard_index = db.Column(db.Integer)
-    data = db.Column(db.LargeBinary, unique=True, nullable=False)
+    data = db.Column(db.Text, unique=True, nullable=False)
 
     def __repr__(self):
         return '<Shard ID %r>' % self.id
