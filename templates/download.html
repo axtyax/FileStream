@@ -176,15 +176,15 @@
 
         fill_file_list();
 
-        var shard_request_delay = 2000;
+        var shard_request_delay = 250;
 
-        function request_new_shard(file_id,shard_id,callback) {
+        function request_new_shard(file_id,shard_id,shard_count,callback) {
             const Http = new XMLHttpRequest();
             const url = '/request_shard/'+session_id+'/'+file_id+'/'+shard_id;
             Http.open("GET", url);
             Http.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
             Http.onreadystatechange=(e)=>{
-                callback(Http.responseText)
+                callback(Http.responseText,shard_count)
             }
             Http.send();  
         }
@@ -196,14 +196,14 @@
                 console.log("at shard " + shard_counter.toString())
                 if (shard_tree_buffer[file_id][shard_counter] === "null") {
                     incomplete_download = 1;
-                    request_new_shard(file_id,shard_tree[file_id][shard_counter][1],function(shard_data) {
+                    request_new_shard(file_id,shard_tree[file_id][shard_counter][1],shard_counter,function(shard_data,sc) {
                         console.log("requested shard " + shard_tree[file_id][shard_counter][1])
                         if (shard_data != "null" && shard_data != "") {
-                            console.log("got shard " + shard_counter.toString())
+                            console.log("got shard " + sc.toString())
                             console.log("size " + shard_data.length.toString())
-                            shard_tree_buffer[file_id][shard_counter] = shard_data
+                            shard_tree_buffer[file_id][sc] = shard_data
                         }
-                        console.log(shard_tree_buffer)
+                        //console.log(shard_tree_buffer)
                     });
                 }
                 shard_counter +=1;
@@ -224,7 +224,7 @@
             document.body.appendChild(a);
             a.style = "display: none";
             return function (data, name) {
-                var blob = new Blob(data, {type: "octet/stream"}),
+                var blob = new Blob(data, {type: "application/octet-stream"}),
                     url = window.URL.createObjectURL(blob);
                 a.href = url;
                 a.download = name;
@@ -241,13 +241,20 @@
                 complete_buf_str += shard_tree_buffer[file_id][i]
             }
 
-            var enc = new TextEncoder();
-            file_buf = enc.encode(complete_buf_str);
+            console.log("buf str size: " + complete_buf_str.length.toString())
+
+            //var file_buf = enc.encode(complete_buf_str);
+
+            var file_buf = [];
+            var utf8 = complete_buf_str;
+            for (var i = 0; i < utf8.length; i++) {
+                file_buf.push(utf8.charCodeAt(i));
+            }
 
             console.log("download " + file_id + " complete")
-            console.log(file_buf)
+            console.log(new Uint8Array(file_buf))
 
-            saveByteArray([file_buf], shard_tree[file_id][0][3]);
+            saveByteArray([new Uint8Array(file_buf)], shard_tree[file_id][0][3]);
 
         }
 

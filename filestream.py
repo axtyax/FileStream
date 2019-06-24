@@ -62,12 +62,12 @@ def download_page(session_id):
 @app.route('/request_shard/<session_id>/<file_id>/<shard_id>')
 def request_shard(session_id,file_id,shard_id):
     shard = download.retrieve_shard(shard_id)
-    print(shard)
+    #print(shard)
     if shard is None:
         if not session_id in shard_requests:
             shard_requests[session_id] = []
         shard_requests[session_id].append([file_id,shard_id])
-        print(shard_requests)
+        #print(shard_requests)
         return "null"
     else:
         data = shard.data

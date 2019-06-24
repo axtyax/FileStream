@@ -207,7 +207,7 @@
         var shard_buffer = []
         var shard_tree = {}
         var session_id = random_id();
-        var shard_size = 250000;
+        var shard_size = 100000;
 
         function upload_files() {
             shard_buffer = [];
@@ -241,8 +241,17 @@
             for (var s = 0; s*shard_size < file_buf.byteLength; s++) {
                 var shard_id = random_id();
                 //console.log(file_buf.slice(s*shard_size,(s+1)*shard_size));
-                var sliced_shard = file_buf.slice(s*shard_size,(s+1)*shard_size)
-                console.log(sliced_shard);
+                var sliced_shard_arr = new Uint8Array(file_buf.slice(s*shard_size,(s+1)*shard_size))
+                console.log(sliced_shard_arr);
+                
+                //var sliced_shard = new TextDecoder("utf-8").decode(sliced_shard)
+                var sliced_shard = "";
+
+                for (var i = 0; i < sliced_shard_arr.length; i++) {
+                    sliced_shard += String.fromCharCode(sliced_shard_arr[i])
+                }
+
+                console.log("shard str size: " + sliced_shard.length.toString())
                 shard_buffer.push([file_id,shard_id,s,file_name,sliced_shard])
                 if (shard_tree[file_id] != undefined)
                     shard_tree[file_id].push([file_id,shard_id,s,file_name,sliced_shard.byteLength])
@@ -300,7 +309,7 @@
             Http.onreadystatechange=(e)=>{
                 console.log(Http.responseText)
             }
-            console.log(shard[4])
+            //console.log(shard[4])
             Http.send(shard[4]);
         }
 
@@ -319,7 +328,7 @@
         }
 
         //delay 100msec before checking for each new shard
-        var shard_check_delay = 1000
+        var shard_check_delay = 250
         var num_checks = 0
 
     </script>
