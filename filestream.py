@@ -28,6 +28,10 @@ def sitemap():
 def index():
     return render_template("index.html")
 
+@app.route('/about')
+def about():
+    return render_template("about.html")
+
 import upload
 
 @app.route('/upload/metadata', methods=['POST'])
