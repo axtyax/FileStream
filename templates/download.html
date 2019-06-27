@@ -101,8 +101,6 @@
         margin: auto;
         background: transparent;
         border: rgba(255, 255, 255,0.7) solid 2px;
-        padding: 5px;
-        border-radius: 5px;
     }
 
     #download input:hover {
@@ -110,16 +108,38 @@
     }
 
     #file_list {
-    
+        padding: 0px;
+        text-align: center;
     }
 
     #file_list li {
-        width: 100%;
+        margin: auto;
+        width: 90%;
+        padding: 5px;
+    }
+
+    #file_list li:hover {
+        border: blue 1px solid;
+        border-radius: 5px;
     }
 
     #file_list li i {
         color: black;
+        font-size: 20px;
     }
+
+    .progress_box {
+        width: 100%;
+        height: 4px;
+        border-radius: 2px;
+        background-color: black;
+    }
+
+    .progress_bar {
+        height: 100%;
+        background-color: rgb(0, 255, 0);
+    }
+    
 
 </style>
 
@@ -159,7 +179,9 @@
         function fill_file_list() {
 
             function formatted_file_list_elem(file_id,filename,filesize) {
-                return "<li>"+filename+"<button onclick=\'download_file(\""+file_id+"\")\'><i class='fa fa-download'></i></button></li>"
+                var line1 = "<li>"+filename+"<button onclick=\'download_file(\""+file_id+"\")\'><i class='fa fa-download'></i></button>"
+                var line2 = "<div class='progress_box'><div class='progress_bar' id='progress_bar_"+file_id+"'></div></div></li>"
+                return line1+line2
             }
 
             document.getElementById("file_list").innerHTML = "";
@@ -192,9 +214,12 @@
         function download_file(file_id) {
             var shard_counter = 0;
             var incomplete_download = 1;
-            var repeated_shard_request = setInterval(function() {
+            var shard_rec_func = function() {
+                update_file_download_progress(file_id)
                 console.log("at shard " + shard_counter.toString())
                 if (shard_tree_buffer[file_id][shard_counter] === "null") {
+                    clearInterval(repeated_shard_request);
+                    repeated_shard_request = setInterval(shard_rec_func, shard_request_delay);
                     incomplete_download = 1;
                     request_new_shard(file_id,shard_tree[file_id][shard_counter][1],shard_counter,function(shard_data,sc) {
                         console.log("requested shard " + shard_tree[file_id][shard_counter][1])
@@ -206,6 +231,10 @@
                         //console.log(shard_tree_buffer)
                     });
                 }
+                else {
+                    clearInterval(repeated_shard_request);
+                    repeated_shard_request = setInterval(shard_rec_func, 5);
+                }
                 shard_counter +=1;
                 if (shard_counter >= shard_tree_buffer[file_id].length) {
                     if (incomplete_download == 0) {
@@ -216,7 +245,21 @@
                     shard_counter = 0;
                     incomplete_download = 0;
                 }
-            }, shard_request_delay);
+            }
+            var repeated_shard_request = setInterval(shard_rec_func, shard_request_delay);
+        }
+
+        function update_file_download_progress(file_id) {
+            var total_shards = shard_tree[file_id].length *1.0;
+            var filled_shards = 0.0;
+            for (var i = 0; i < total_shards; i++) {
+                if (shard_tree_buffer[file_id][i].length > 100) {
+                    filled_shards++;
+                }
+            }
+            var progress = 100.0*filled_shards/total_shards;
+            console.log(filled_shards)
+            document.getElementById("progress_bar_"+file_id).style.width = progress.toString() + "%";
         }
 
         var saveByteArray = (function () {
