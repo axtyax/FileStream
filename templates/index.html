@@ -233,6 +233,11 @@
             reader.readAsArrayBuffer(file);
         }
 
+        function get_shard(shard_id,shard_num) {
+            var sliced_shard_arr = new Uint8Array(file_buf.slice(s*shard_size,(s+1)*shard_size))
+            return sliced_shard_arr
+        }
+
         function shard_file(file_buf,file_name) {
             var file_id = random_id();
             for (var s = 0; s*shard_size < file_buf.byteLength; s++) {
