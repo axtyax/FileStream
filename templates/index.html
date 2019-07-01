@@ -10,7 +10,7 @@
     <meta name="author" content="Axtya Darius Barbano">
     <title>FileStream - Transfer files between devices</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <!-- Global site tag (gtag.js) - Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-125635751-3"></script>
     <script>
@@ -106,6 +106,17 @@
         color: cyan;
     }
 
+    #file_list li button {
+        color: red;
+        border-radius: 5px;
+        border: solid 1px gray;
+        background: transparent;
+    }
+
+    #file_list li button:hover {
+        color: black;
+    }
+
     #upload_link {
         padding-top: 1.5%;
         text-align: center;
@@ -156,13 +167,23 @@
     <script>
         
         var file_list = []
+        var is_streaming = false;
 
         function update_file_list() {
             var txt = "";
+            document.getElementById("file_list").innerHTML = "";
             for (var f = 0; f < file_list.length; f++) {
-                txt += "<li><strong>" + (f+1) + ". " + file_list[f][1] + "</strong><br>size: " + file_list[f][2] + " bytes </li>";
+                txt += "<li><button onclick=remove_file_from_list("+f.toString()+")><i class='fa fa-remove'></i></button><strong>   " + 
+                    file_list[f][1] + "</strong><br>size: " + file_list[f][2] + " bytes </li>";
             }
             document.getElementById("file_list").innerHTML = txt;
+        }
+
+        function remove_file_from_list(file_list_num) {
+            if (!is_streaming) {
+                file_list.splice(file_list_num,1);
+                update_file_list();
+            }
         }
 
         function add_files() {
@@ -263,6 +284,7 @@
         }
 
         function upload_metadata() {
+            is_streaming = true;
             const Http = new XMLHttpRequest();
             const url='/upload/metadata'
             Http.open("POST", url);
