@@ -2,7 +2,10 @@ from flask import Flask
 from flask import render_template
 from flask import Response
 from flask import request
+from flask_sslify import SSLify
+
 app = Flask(__name__)
+sslify = SSLify(app)
 
 from flask_sqlalchemy import SQLAlchemy
 from database import models
