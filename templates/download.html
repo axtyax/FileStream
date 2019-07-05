@@ -215,6 +215,7 @@
         function download_file(file_id) {
             var shard_counter = 0;
             var empty_shards_in_row = 0;
+            var empty_shards_in_row_bigger = 0;
             var incomplete_download = 1;
             var shard_rec_func = function() {
                 update_file_download_progress(file_id)
@@ -226,12 +227,15 @@
                     request_new_shard(file_id,shard_tree[file_id][shard_counter][1],shard_counter,function(shard_data,sc) {
                         console.log("requested shard " + shard_tree[file_id][shard_counter][1])
                         if (shard_data != "null" && shard_data != "") {
+                            empty_shards_in_row_bigger = 0;
+                            empty_shards_in_row = 0;
                             console.log("got shard " + sc.toString())
                             console.log("size " + shard_data.length.toString())
                             shard_tree_buffer[file_id][sc] = shard_data
                         }
                         else {
                             empty_shards_in_row++;
+                            empty_shards_in_row_bigger++;
                         }
                         //console.log(shard_tree_buffer)
                     });
@@ -253,6 +257,13 @@
                 if (empty_shards_in_row > 15) {
                     shard_counter = 0;
                     empty_shards_in_row = 0;
+                }
+                if (empty_shards_in_row_bigger > 25) {
+                    if (empty_shards_in_row_bigger > 1200) {
+                        empty_shards_in_row_bigger = 1200;
+                    }
+                    clearInterval(repeated_shard_request);
+                    repeated_shard_request = setInterval(shard_rec_func, empty_shards_in_row_bigger*15);                        
                 }
             }
             var repeated_shard_request = setInterval(shard_rec_func, shard_request_delay);

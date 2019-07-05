@@ -296,13 +296,32 @@
                 document.getElementById("upload_button").disabled = true;
                 document.getElementById("add_files_button").disabled = true;
 
-                var continuous_stream = setInterval(function() {
-                    stream_requested_shard()
-                    if (num_checks >= 1000) {
+                var stream_func = function() {
+                    stream_requested_shard(function(reaction) {
+                        if (reaction == 0) {
+                            consecutive_null_responses++;
+                            if (consecutive_null_responses >= 10) {
+                                clearInterval(continuous_stream);
+                                var new_check_delay = consecutive_null_responses * 100;
+                                if (consecutive_null_responses >= 300) {
+                                    consecutive_null_responses = 300;
+                                }
+                                continuous_stream = setInterval(stream_func, new_check_delay);
+                            }
+                        }
+                        else if (reaction == 1) {
+                            consecutive_null_responses = 0;
+                            clearInterval(continuous_stream);
+                            continuous_stream = setInterval(stream_func, shard_check_delay);
+                        }
+                    });
+                    /*if (num_checks >= 1000) {
                         clearInterval(continuous_stream);
-                    } 
-                    num_checks += 1
-                }, shard_check_delay);
+                    }
+                    num_checks += 1*/
+                }
+
+                var continuous_stream = setInterval(stream_func, shard_check_delay);
 
 
             }
@@ -337,23 +356,29 @@
             Http.send(shard[4]);
         }
 
-        function stream_requested_shard() {
+        function stream_requested_shard(callback) {
             ping_server(function(check_response) {
                 console.log(check_response)
                 if (check_response != "null") {
                     for (var i  = 0; i < shard_buffer.length; i++) {
                         if (shard_buffer[i][1] == check_response) {
                             send_shard(shard_buffer[i]);
-                            return
+                            callback(1)
+                            return;
                         }
                     }
+                }
+                else {
+                    callback(0)
+                    return;
                 }
             });
         }
 
         //delay 100msec before checking for each new shard
         var shard_check_delay = 250
-        var num_checks = 0
+        var num_checks = 0;
+        var consecutive_null_responses = 0;
 
     </script>
 
