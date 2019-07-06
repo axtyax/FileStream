@@ -35,6 +35,11 @@ def index():
 def about():
     return render_template("about.html")
 
+@app.route('/articles/1')
+def article_1():
+    return render_template("article_1.html")
+
+
 import upload
 
 @app.route('/upload/metadata', methods=['POST'])
