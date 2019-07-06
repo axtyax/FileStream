@@ -1,0 +1,5 @@
+Store stream metadata as json string
+implement download.py- retrieve metadata and shards
+download interface-
+    download.html gets metadata as a template
+    download.html requests shards
