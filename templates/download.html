@@ -180,7 +180,7 @@
         function fill_file_list() {
 
             function formatted_file_list_elem(file_id,filename,filesize) {
-                var line1 = "<li>"+filename+"<button onclick=\'download_file(\""+file_id+"\")\'><i class='fa fa-download'></i></button>"
+                var line1 = "<li>"+filename+"&nbsp;&nbsp;<button onclick=\'download_file(\""+file_id+"\")\'><i class='fa fa-download'></i></button>"
                 var line2 = "<div class='progress_box'><div class='progress_bar' id='progress_bar_"+file_id+"'></div></div></li>"
                 return line1+line2
             }
